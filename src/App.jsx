@@ -11,7 +11,7 @@ function App() {
     <>
       <div className="flex flex-col item-center justify-center py-9 ">
         <h1 className='text-5xl font-extrabold text-gray-700 '>Welcome to Online Streaming Platform </h1>
-        
+        new data
       </div>
     </>
   )
