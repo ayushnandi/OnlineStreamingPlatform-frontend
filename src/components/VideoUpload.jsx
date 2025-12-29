@@ -2,8 +2,15 @@ import { useState } from "react"
 
 function VideoUpload() {
   const [file, setFile] = useState(null)
-  const [error, setError] = useState("")
   const [thumbnail, setThumbnail] = useState(null)
+  const [error, setError] = useState("")
+  const [uploading, setUploading] = useState(false);
+  const [meta,setmeta] = useState(
+    {
+      title:"",
+      description:""
+    }
+  )
 
   const MAX_SIZE = 1 * 1024 * 1024 * 1024 // 1GB
 
@@ -44,16 +51,27 @@ function VideoUpload() {
 
   const handleUpload = () => {
     if (!file) return
-    console.log("Uploading:", file.name)
-    // backend upload logic will go here
+    console.log({ title: meta.title , description:meta.description, file })
+    // backend upload logic here
+    saveVideoToServer(file,meta);
+  }
+
+  async function saveVideoToServer(file,meta){
+    setUploading(true);
+    try{
+      await axios.post('https//localhost:8080/api/v1/videos')
+    }catch(error){
+      console.log(error);
+    }
+
   }
 
   return (
     <section className="min-h-screen bg-black text-white flex items-center justify-center px-6">
-      <div className="max-w-4xl w-full text-center space-y-12 animate-fade-in">
+      <div className="max-w-3xl w-full text-center space-y-10 animate-fade-in">
 
         {/* Hero */}
-        <div className="space-y-4">
+        <div className="py-12 md:py-16 space-y-4">
           <h1 className="text-5xl md:text-6xl font-extrabold tracking-wide">
             Upload Your <span className="text-gray-400">Videos</span>
           </h1>
@@ -63,22 +81,19 @@ function VideoUpload() {
         </div>
 
         {/* Upload Card */}
-        <div
-          className="
-            border border-white/10 rounded-2xl p-8
-            bg-black/50 backdrop-blur-xl
-            transition
-            hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40
-          "
-        >
-          <div className="flex flex-col items-center gap-6">
+        <div className="
+          border border-white/10 rounded-2xl py-8 
+          bg-black/50 backdrop-blur-xl
+          transition hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/40
+        ">
+          <div className="flex flex-col items-center gap-6 max-w-md mx-auto">
 
             {/* Thumbnail */}
             {thumbnail ? (
               <img
                 src={thumbnail}
                 alt="Video thumbnail"
-                className="w-full max-w-md rounded-xl border border-white/10 shadow-lg"
+                className="w-full rounded-xl border border-white/10 shadow-lg"
               />
             ) : (
               <div className="w-24 h-24 rounded-full border border-white/10 flex items-center justify-center">
@@ -98,12 +113,6 @@ function VideoUpload() {
               </div>
             )}
 
-            {/* Text */}
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold">Drag & drop your video</h2>
-              <p className="text-gray-500 text-sm">MP4, MKV, MOV • Max 1GB</p>
-            </div>
-
             {/* Select Video */}
             <label className="cursor-pointer">
               <input
@@ -112,32 +121,63 @@ function VideoUpload() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <span
-                className="
-                  px-8 py-3 rounded-xl
-                  border border-white/80
-                  text-white font-medium
-                  hover:bg-white hover:text-black
-                  transition
-                "
-              >
+              <span className="
+                px-6 py-2.5 rounded-lg
+                border border-white/70
+                text-sm font-medium
+                text-white
+                hover:bg-white hover:text-black
+                transition
+              ">
                 Select Video
               </span>
             </label>
 
             {/* File Name */}
             {file && (
-              <p className="text-sm text-gray-300">
+              <p className="text-sm text-gray-300 truncate">
                 Selected: <span className="font-medium">{file.name}</span>
               </p>
             )}
 
-            {/* Upload Button (APPEARS AFTER FILE SELECTED) */}
+            {/* Title & Description */}
+            {file && (
+              <div className="w-full space-y-4 text-left">
+                <input
+                  type="text"
+                  placeholder="Video title"
+                  value={meta.title}
+                  onChange={(e)=>setmeta({...meta,title: e.target.value})}
+                  className="
+                    w-full px-4 py-2.5 rounded-lg
+                    bg-black border border-white/10
+                    text-white placeholder-gray-500
+                    focus:outline-none focus:border-white/30
+                  "
+                />
+
+                <textarea
+                  rows={4}
+                  placeholder="Video description"
+                  value={meta.description}
+                  onChange={(e) => setmeta({...meta,description: e.target.value})}
+                  className="
+                    w-full px-4 py-2.5 rounded-lg
+                    bg-black border border-white/10
+                    text-white placeholder-gray-500
+                    focus:outline-none focus:border-white/30
+                    resize-none
+                  "
+                />
+              </div>
+            )}
+
+            {/* Upload Button */}
             {file && !error && (
               <button
                 onClick={handleUpload}
                 className="
-                  mt-2 px-10 py-3 rounded-xl
+                  mt-2 px-8 py-2.5 rounded-lg
                   bg-white text-black font-medium
                   hover:bg-gray-200
                   transition
